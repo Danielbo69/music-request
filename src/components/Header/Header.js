@@ -6,8 +6,8 @@ function Header() {
   return (
     <div className='header d-flex justify-content-center align-items-center flex-column w-100 h-auto'>
         <img className='h-auto' src={ImageLogo} alt={ImageLogo} />
-        <label className='text-white'>¡Solicita una canción!</label>
-        <SlArrowDown color='white' fontSize={30} />
+        <label className='text-white mt-2' id='title' style={{fontSize: '23px', letterSpacing: 0.7}}>¡Solicita una canción!</label>
+        <SlArrowDown className='mt-2' color='white' fontSize={30} />
     </div>
   )
 }

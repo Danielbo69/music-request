@@ -6,3 +6,9 @@
         width: 350px;
     }
 }
+
+@media (max-width: 320px) {
+    .header img {
+        width: 270px;
+    }
+}

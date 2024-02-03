@@ -1,8 +1,12 @@
 .footer img {
     width: 200px;
 }
+
 @media (max-width: 768px) {
     .footer img {
         width: 150px;
+    }
+    .titleLogo{ 
+        padding: 20px;
     }
 }

@@ -1,3 +1,8 @@
 .App {
   text-align: center;
 }
+
+#title {
+  font-family: "Regencie", sans-serif, 300;
+  font-family: "Regencie Alt", sans-serif, 300;
+}
