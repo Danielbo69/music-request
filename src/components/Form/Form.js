@@ -31,16 +31,23 @@ function Form() {
 
   // Verifica al cargar la página si el correo ya fue enviado
   useEffect(() => {
-    if (localStorage.getItem("correoEnviado") === "true") {
-      setCorreoEnviado(true);
-    }
+    const isCorreoEnviado = isMobileDevice()
+      ? sessionStorage.getItem("correoEnviado") === "true"
+      : localStorage.getItem("correoEnviado") === "true";
+    setCorreoEnviado(isCorreoEnviado);
   }, []);
-
-  // Guarda el estado correoEnviado en el localStorage
+  
+  // Guarda el estado correoEnviado en el sessionStorage o localStorage según el dispositivo
   useEffect(() => {
-    localStorage.setItem("correoEnviado", correoEnviado);
+    isMobileDevice()
+      ? sessionStorage.setItem("correoEnviado", correoEnviado)
+      : localStorage.setItem("correoEnviado", correoEnviado);
   }, [correoEnviado]);
 
+  const isMobileDevice = () => {
+    return window.innerWidth <= 768; // Puedes ajustar este umbral según tus necesidades
+  };
+  
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormMusic({
@@ -80,7 +87,7 @@ function Form() {
         "error",
         "btn btn-danger"
       );
-    } else if (correoEnviado === false) {
+    } else if (!correoEnviado) {
       // Make API call to Submit form data
       emailjs
         .sendForm(
