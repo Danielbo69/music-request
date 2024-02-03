@@ -31,12 +31,13 @@ function Form() {
 
   // Verifica al cargar la página si el correo ya fue enviado
   useEffect(() => {
-    if (localStorage.getItem("correoEnviado") === "true") {
-      setCorreoEnviado(true);
-    } else {
-      // Guarda el estado correoEnviado en el localStorage
-      localStorage.setItem("correoEnviado", correoEnviado);
-    }
+    const isCorreoEnviado = localStorage.getItem("correoEnviado") === "true";
+    setCorreoEnviado(isCorreoEnviado);
+  }, []);
+
+  // Guarda el estado correoEnviado en el localStorage
+  useEffect(() => {
+    localStorage.setItem("correoEnviado", correoEnviado);
   }, [correoEnviado]);
 
   const handleChange = (event) => {
