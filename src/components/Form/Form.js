@@ -12,11 +12,11 @@ const Alert = (title, text, icon, button) => {
     icon: icon,
     customClass: {
       confirmButton: button,
-      cancelButton: button
+      cancelButton: button,
     },
     confirmButtonText: "OK",
     cancelButtonText: "OK",
-    buttonsStyling: false
+    buttonsStyling: false,
   });
 };
 
@@ -31,23 +31,14 @@ function Form() {
 
   // Verifica al cargar la página si el correo ya fue enviado
   useEffect(() => {
-    const isCorreoEnviado = isMobileDevice()
-      ? sessionStorage.getItem("correoEnviado") === "true"
-      : localStorage.getItem("correoEnviado") === "true";
-    setCorreoEnviado(isCorreoEnviado);
-  }, []);
-  
-  // Guarda el estado correoEnviado en el sessionStorage o localStorage según el dispositivo
-  useEffect(() => {
-    isMobileDevice()
-      ? sessionStorage.setItem("correoEnviado", correoEnviado)
-      : localStorage.setItem("correoEnviado", correoEnviado);
+    if (localStorage.getItem("correoEnviado") === "true") {
+      setCorreoEnviado(true);
+    } else {
+      // Guarda el estado correoEnviado en el localStorage
+      localStorage.setItem("correoEnviado", correoEnviado);
+    }
   }, [correoEnviado]);
 
-  const isMobileDevice = () => {
-    return window.innerWidth <= 768; // Puedes ajustar este umbral según tus necesidades
-  };
-  
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormMusic({
@@ -61,7 +52,12 @@ function Form() {
 
     if (correoEnviado) {
       // El usuario ya envió un correo en los últimos 5 minutos, puedes mostrar un mensaje o bloquear el envío
-      Alert("¡ESPERA!", "Debes esperar 5 minutos para solicitar otra canción.", "warning", "btn btn-danger");
+      Alert(
+        "¡ESPERA!",
+        "Debes esperar 5 minutos para solicitar otra canción.",
+        "warning",
+        "btn btn-danger"
+      );
       return;
     }
 
@@ -87,7 +83,7 @@ function Form() {
         "error",
         "btn btn-danger"
       );
-    } else if (!correoEnviado) {
+    } else if (correoEnviado === false) {
       // Make API call to Submit form data
       emailjs
         .sendForm(
@@ -99,6 +95,13 @@ function Form() {
         .then(
           (result) => {
             if (result.text === "OK") {
+              // Mensaje de exito para el usuario
+              Alert(
+                "¡FELICIDADES!",
+                "Se ha enviado tu petición.",
+                "success",
+                "btn btn-success"
+              );
               // Reset Form State
               setFormMusic({
                 name: "",
@@ -112,13 +115,6 @@ function Form() {
               setTimeout(() => {
                 setCorreoEnviado(false);
               }, 5 * 60 * 1000); // 5 minutos en milisegundos
-
-              Alert(
-                "¡FELICIDADES!",
-                "Se ha enviado tu petición.",
-                "success",
-                "btn btn-success"
-              );
             }
           },
           (error) => {
