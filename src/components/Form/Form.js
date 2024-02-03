@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
 
-const AlertError = (title, text, icon, button) => {
+const Alert = (title, text, icon, button) => {
   Swal.fire({
     title: title,
     text: text,
@@ -61,27 +61,27 @@ function Form() {
 
     if (correoEnviado) {
       // El usuario ya envió un correo en los últimos 5 minutos, puedes mostrar un mensaje o bloquear el envío
-      AlertError("¡ESPERA!", "Debes esperar 5 minutos para solicitar otra canción.", "warning", "btn btn-danger");
+      Alert("¡ESPERA!", "Debes esperar 5 minutos para solicitar otra canción.", "warning", "btn btn-danger");
       return;
     }
 
     // Validate form data
     if (formMusic.nameMusic === "" || formMusic.nameMusic.length < 3) {
-      AlertError(
+      Alert(
         "¡Error!",
         "El campo de musica no puede estar vacio y con menos de 3 caracteres",
         "error",
         "btn btn-danger"
       );
     } else if (formMusic.singer === "" || formMusic.singer < 3) {
-      AlertError(
+      Alert(
         "¡Error!",
         "El campo de artista no puede estar vacio y con menos de 3 caracteres",
         "error",
         "btn btn-danger"
       );
     } else if (formMusic.name === "" || formMusic.name.length < 3) {
-      AlertError(
+      Alert(
         "¡Error!",
         "El campo de tu nombre no puede estar vacio y con menos de 3 caracteres",
         "error",
@@ -113,7 +113,7 @@ function Form() {
                 setCorreoEnviado(false);
               }, 5 * 60 * 1000); // 5 minutos en milisegundos
 
-              AlertError(
+              Alert(
                 "¡FELICIDADES!",
                 "Se ha enviado tu petición.",
                 "success",
@@ -122,7 +122,7 @@ function Form() {
             }
           },
           (error) => {
-            AlertError("¡Error!", error.text, "error", "btn btn-danger");
+            Alert("¡Error!", error.text, "error", "btn btn-danger");
           }
         );
     }
