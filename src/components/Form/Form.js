@@ -27,18 +27,40 @@ function Form() {
     singer: "",
   });
   const [correoEnviado, setCorreoEnviado] = useState(false);
+  const [temporizadorActivo, setTemporizadorActivo] = useState(false);
   const formRef = useRef();
 
-  // Verifica al cargar la página si el correo ya fue enviado
   useEffect(() => {
-    const isCorreoEnviado = localStorage.getItem("correoEnviado") === "true";
-    setCorreoEnviado(isCorreoEnviado);
-  }, []);
+    const ultimaMarcaDeTiempo = localStorage.getItem("ultimoEnvio");
 
-  // Guarda el estado correoEnviado en el localStorage
-  useEffect(() => {
-    localStorage.setItem("correoEnviado", correoEnviado);
-  }, [correoEnviado]);
+    if (ultimaMarcaDeTiempo) {
+      const tiempoTranscurrido =
+        new Date().getTime() - parseInt(ultimaMarcaDeTiempo);
+      const minutosTranscurridos = tiempoTranscurrido / (1000 * 60);
+
+      if (minutosTranscurridos < 5) {
+        setCorreoEnviado(true);
+        setTemporizadorActivo(true);
+
+        Alert(
+          "¡ESPERA!",
+          "Debes esperar 5 minutos para solicitar otra canción.",
+          "warning",
+          "btn btn-danger"
+        );
+
+        // Configurar el temporizador para resetear el estado después de 5 minutos
+        setTimeout(() => {
+          setTemporizadorActivo(false);
+          setCorreoEnviado(false);
+        }, 5 * 60 * 1000); // 5 minutos en milisegundos
+      } else {
+        setCorreoEnviado(false);
+      }
+    } else {
+      setCorreoEnviado(false);
+    }
+  }, []);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -48,43 +70,32 @@ function Form() {
     });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (correoEnviado) {
-      // El usuario ya envió un correo en los últimos 5 minutos, puedes mostrar un mensaje o bloquear el envío
+    // Validate form data
+    if (correoEnviado || temporizadorActivo) {
       Alert(
         "¡ESPERA!",
         "Debes esperar 5 minutos para solicitar otra canción.",
         "warning",
         "btn btn-danger"
       );
-      return;
-    }
-
-    // Validate form data
-    if (formMusic.nameMusic === "" || formMusic.nameMusic.length < 3) {
+    } else if (
+      formMusic.nameMusic === "" ||
+      formMusic.nameMusic.length < 3 ||
+      formMusic.singer === "" ||
+      formMusic.singer.length < 3 ||
+      formMusic.name === "" ||
+      formMusic.name.length < 3
+    ) {
       Alert(
         "¡Error!",
-        "El campo de musica no puede estar vacio y con menos de 3 caracteres",
+        "Todos los campos deben tener al menos 3 caracteres",
         "error",
         "btn btn-danger"
       );
-    } else if (formMusic.singer === "" || formMusic.singer < 3) {
-      Alert(
-        "¡Error!",
-        "El campo de artista no puede estar vacio y con menos de 3 caracteres",
-        "error",
-        "btn btn-danger"
-      );
-    } else if (formMusic.name === "" || formMusic.name.length < 3) {
-      Alert(
-        "¡Error!",
-        "El campo de tu nombre no puede estar vacio y con menos de 3 caracteres",
-        "error",
-        "btn btn-danger"
-      );
-    } else if (correoEnviado === false) {
+    } else {
       // Make API call to Submit form data
       emailjs
         .sendForm(
@@ -109,11 +120,18 @@ function Form() {
                 nameMusic: "",
                 singer: "",
               });
-              // Actualiza el estado indicando que el correo ha sido enviado y guarda el tiempo
-              setCorreoEnviado(true);
 
-              // Configura un temporizador para resetear el estado después de 5 minutos
+              /// Actualizar el estado indicando que el correo ha sido enviado y guardar la marca de tiempo
+              setCorreoEnviado(true);
+              setTemporizadorActivo(true);
+              localStorage.setItem(
+                "ultimoEnvio",
+                new Date().getTime().toString()
+              );
+
+              // Configurar el temporizador para resetear el estado después de 5 minutos
               setTimeout(() => {
+                setTemporizadorActivo(false);
                 setCorreoEnviado(false);
               }, 5 * 60 * 1000); // 5 minutos en milisegundos
             }
@@ -121,7 +139,16 @@ function Form() {
           (error) => {
             Alert("¡Error!", error.text, "error", "btn btn-danger");
           }
-        );
+        )
+        .catch((error) => {
+          console.error("Error al enviar el formulario:", error);
+          Alert(
+            "¡Error!",
+            "Hubo un problema al enviar el formulario.",
+            "error",
+            "btn btn-danger"
+          );
+        });
     }
   };
 
