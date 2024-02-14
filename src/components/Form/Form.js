@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./Form.css";
-import emailjs from "@emailjs/browser";
+// import emailjs from "@emailjs/browser";
 import Swal from "sweetalert2";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
+import { Spinner } from "react-bootstrap";
 
 const Alert = (title, text, icon, button) => {
   Swal.fire({
@@ -28,6 +29,7 @@ function Form() {
   });
   const [correoEnviado, setCorreoEnviado] = useState(false);
   const [temporizadorActivo, setTemporizadorActivo] = useState(false);
+  const [spinner, setSpinner] = useState(false);
   const formRef = useRef();
 
   useEffect(() => {
@@ -81,7 +83,8 @@ function Form() {
         "warning",
         "btn btn-danger"
       );
-    } else if (
+    } else 
+    if (
       formMusic.nameMusic === "" ||
       formMusic.nameMusic.length < 3 ||
       formMusic.singer === "" ||
@@ -96,17 +99,30 @@ function Form() {
         "btn btn-danger"
       );
     } else {
+      let send = {
+        method: "POST",
+        body: JSON.stringify(formMusic),
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+        },
+      };
+      setSpinner(true);
       // Make API call to Submit form data
-      emailjs
-        .sendForm(
-          process.env.REACT_APP_SERVICES_ID,
-          process.env.REACT_APP_TEMPLATE_ID,
-          formRef.current,
-          process.env.REACT_APP_PUBLIC_KEY
-        )
+      // emailjs
+      //   .sendForm(
+      //     process.env.REACT_APP_SERVICES_ID,
+      //     process.env.REACT_APP_TEMPLATE_ID,
+      //     formRef.current,
+      //     process.env.REACT_APP_PUBLIC_KEY
+      //   )
+      await fetch(
+        process.env.REACT_APP_URLBASE + process.env.REACT_APP_URLSENDEMAIL,
+        send
+      )
         .then(
           (result) => {
-            if (result.text === "OK") {
+            if (result.status === 200) {
+              setSpinner(false);
               // Mensaje de exito para el usuario
               Alert(
                 "¡FELICIDADES!",
@@ -137,11 +153,12 @@ function Form() {
             }
           },
           (error) => {
+            setSpinner(false);
             Alert("¡Error!", error.text, "error", "btn btn-danger");
           }
         )
         .catch((error) => {
-          console.error("Error al enviar el formulario:", error);
+          setSpinner(false);
           Alert(
             "¡Error!",
             "Hubo un problema al enviar el formulario.",
@@ -159,45 +176,50 @@ function Form() {
   return (
     <>
       <Header />
-      <form ref={formRef} onSubmit={handleSubmit}>
-        <div className="w-100 mb-2">
-          <input
-            type="text"
-            name="nameMusic"
-            value={formMusic.nameMusic}
-            onChange={handleChange}
-            placeholder="Canción"
-            className="text-center"
-            style={font}
-          />
-        </div>
-        <div className="w-100 mb-2">
-          <input
-            type="text"
-            name="singer"
-            value={formMusic.singer}
-            onChange={handleChange}
-            placeholder="Artista"
-            className="text-center"
-            style={font}
-          />
-        </div>
-        <div className="w-100 mb-2">
-          <input
-            type="text"
-            name="name"
-            value={formMusic.name}
-            onChange={handleChange}
-            placeholder="Tu nombre"
-            className="text-center"
-            style={font}
-          />
-        </div>
-        <hr />
-        <div className="w-100">
-          <button type="submit">ENVIAR</button>
-        </div>
-      </form>
+        <form ref={formRef} onSubmit={handleSubmit}>
+          <div className="w-100 mb-2">
+            <input
+              type="text"
+              name="nameMusic"
+              value={formMusic.nameMusic}
+              onChange={handleChange}
+              placeholder="Canción"
+              className="text-center"
+              style={font}
+              disabled={spinner ? true : false}
+            />
+          </div>
+          <div className="w-100 mb-2">
+            <input
+              type="text"
+              name="singer"
+              value={formMusic.singer}
+              onChange={handleChange}
+              placeholder="Artista"
+              className="text-center"
+              style={font}
+              disabled={spinner ? true : false}
+            />
+          </div>
+          <div className="w-100 mb-2">
+            <input
+              type="text"
+              name="name"
+              value={formMusic.name}
+              onChange={handleChange}
+              placeholder="Tu nombre"
+              className="text-center"
+              style={font}
+              disabled={spinner ? true : false}
+            />
+          </div>
+          <hr />
+          <div className="w-100">
+            <button type="submit">
+              {spinner ? <Spinner animation="border" variant="dark"/> : 'ENVIAR'}
+            </button>
+          </div>
+        </form>
       <Footer />
     </>
   );
