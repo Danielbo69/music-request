@@ -216,7 +216,11 @@ function Form() {
           <hr />
           <div className="w-100">
             <button type="submit">
-              {spinner ? <Spinner animation="border" variant="dark"/> : 'ENVIAR'}
+              {spinner ? (
+                <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+                <Spinner className="mx-1" animation="border" variant="dark"/> Cargando...
+                </div>
+              ) : 'ENVIAR'}
             </button>
           </div>
         </form>
